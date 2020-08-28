@@ -1,3 +1,127 @@
+# Github Actions Demo
+
+
+This project builds a Docker image used by multiple pipelines every time code is committed and pushed to the repo. 
+It relies on another, custom Docker image used by GitHub Actions to push an updated pipeline definition to your Pachyderm cluster.
+That's right: there are 2 Docker images involved: 
+One is used by GitHub to talk to Pachyderm. 
+Another is used by the Pachyderm cluster in the pipelines.
+This project may either be forked or copied to be used as a template for your own projects.
+
+There is [one workflow](./.github/workflows/push.yaml) that has 4 steps
+* Log into DockerHub using a GitHub secret called DOCKERHUB_TOKEN and DOCKERHUB_USERNAME created in the repo.
+  (See [creating and using secrets in a GitHub Workflow](https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets) for details)
+* Building the Docker image used by the pipelines
+* Pushing that Docker image to DockerHub with a tag defined by the git commit for the code in the pipeline.
+  In this project, the tag will be something like `pachyderm/housing-prices:28478808dc24124aec77f1df3d52f132beeb6847`
+* Pushing updated pipeline definitions to your Pachyderm cluster.
+  This step uses the GitHub secret PACHYDERM_TOKEN to gain access to the cluster.
+  It also uses the custom action defined in the directory [pachyderm-github-action](./pachyderm-github-action).
+  A common practice in production is to put custom actions in the .github directory.
+  It was placed in a non-hidden directory so you can more easily see the code
+  to modify it for your own purposes.
+
+## Customizing this project
+
+1. Copy needed directories to your own project
+   
+   You can fork this repo 
+   or just copy the [`.github`](./.github) and [`pachyderm-github-action`](./pachyderm-github-action) to your own project.
+
+2. Customize environment variables.
+   There are four environment variables in the [push workflow](./.github/workflows/push.yaml) that need to be customized 
+
+   * `PACHYDERM_CLUSTER_URL`: This is the url to your pachyderm cluster, the one configured via Ingress to pachd's grpc port.
+     If you use Pachyderm Hub, it'll look something like grpcs://hub-some-id.clusters.pachyderm.io:31400'
+   * `PACHYDERM_TOKEN`: This is an authentication token you generate using `pachctl auth get-auth-token --ttl <some duration>`.
+     See [generating the Pachyderm authentication token](#generating_the_pachyderm_authentication_token) below.
+   * `DOCKER_IMAGE_TAG`: Replace this with the base repo/tag combination for your image.
+     For this demo, it's set to `pachyderm/housing-prices`
+   * `PACHYDERM_PIPELINE_FILES`: A space-delimited list of pipeline specifications that depend on `DOCKER_IMAGE_TAG`.
+     In this project, there's just one pipeline, `regression.json`.
+     
+3. (Optional) You may move the directory `pachyderm-github-action` into the `.github` directory
+   if you want to package all the actions together.
+   You will need to modify the final step of the `Docker Images CI` workflow to reflect the new path, something like
+   ```
+   - name: pachyderm-update-pipelines
+     uses: .github/pachyderm-github-action
+     id: pup
+   ```
+  
+4. (Optional) You may want to create shared workflows or add additional actions.
+   Please consult the [Documentation on GitHub Actions](https://docs.github.com/en/actions) for more information.
+
+### Generating the Pachyderm authentication token
+
+Once Pachyderm access controls are activated,
+log in as the user with permissions to update the pipelines for your DAG.
+
+You may want to test this with the `robot:admin`
+configured when access controls were activated,
+or your own credentials.
+Please see [Using this example in production](#using_this_example_in_production) below
+for information regarding production-level security configuration.
+
+Create a Pachyderm authentication token by running the following command:
+
+```
+pachctl auth get-auth-token --ttl <some-golang-formatted-duration>
+```
+
+A golang-formatted duration uses `h` for hours, `m` for minutes, `s` for seconds.
+26 weeks would be `24 * 7 * 26` hours, 
+expressed as `624h`. 
+The token will only be generated for this duration
+if it is *shorter* than the lifetime of the session
+for the user who is logged into the cluster
+where the command is run. 
+Otherwise, it is generated for the duration of that user's current session.
+The expiration of a user's current session can be determined
+by running `pachctl auth whomai`.
+
+The duration of the token 
+determines how long the cron pipeline may run 
+before the secret needs to be refreshed 
+and the pipeline restarted.
+
+Here is a Unix command 
+for generating a token using `pachctl`
+and only outputting the value of the token:
+
+```
+pachctl auth get-auth-token --ttl "624h" | \
+    grep Token | awk '{print $2}' | \
+```
+
+The command is enhanced to encode the token with the `base64` encoding scheme,
+so it can be used in a Kubernetes secret,
+and trim off unnecessary characters.
+
+```
+pachctl auth get-auth-token --ttl "624h" | \
+    grep Token | awk '{print $2}' | \
+    base64 -e | tr -d '\r\n'
+```
+
+## Using this example in production
+
+We recommend that this example be used in production with Pachyderm access controls activated.
+
+When you implement this example on production pipelines with access controls activated,
+you may have to periodically renew `PACHYDERM_TOKEN` in your GitHub repo,
+depending on how your identity provider is configured.
+
+It is a best security practice in production
+to create a Pachyderm user 
+with the [least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) required to do this pipeline's tasks.
+
+This is a periodic maintenance task
+with security implications
+the automation of which should be reviewed
+by appropropriate engineering personnel.
+
+
 # Boston Housing Prices
 
 This example creates a simple machine learning pipeline in Pachyderm to train a regression model on the Boston Housing Dataset to predict the value of homes in Boston. The pipeline itself is written in Python, though a Pachyderm pipeline could be written in any language.

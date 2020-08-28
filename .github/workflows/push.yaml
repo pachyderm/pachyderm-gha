@@ -8,7 +8,7 @@ jobs:
     env:
       PACHYDERM_CLUSTER_URL: grpcs://hub-c0-fl3rezqasn.clusters.pachyderm.io:31400
       PACHYDERM_TOKEN: ${{ secrets.PACHYDERM_TOKEN }}
-      DOCKER_IMAGE_TAG: papposilenus/housing-prices
+      DOCKER_IMAGE_TAG: pachyderm/housing-prices
       PACHYDERM_PIPELINE_FILES: regression.json
     steps:
       - uses: actions/checkout@v2
