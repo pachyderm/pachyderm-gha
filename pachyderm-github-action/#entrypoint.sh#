@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+echo '{"pachd_address": "'${PACHYDERM_CLUSTER_URL}'}' | pachctl config set context default --overwrite
+echo ${PACHYDERM_AUTH_TOKEN} | pachctl auth use-auth-token
+jq --arg tag ${DOCKER_IMAGE_TAG}  --arg version ${GITHUB_SHA} '.transform.image |= $tag+":"+$version' ${PACHYDERM_PIPELINE_FILE} | pachctl create pipeline
+
