@@ -1,19 +1,19 @@
 name: Docker Image CI
 
-on: [pull_request]
+on: [commit]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PACHYDERM_CLUSTER_URL: grpcs://foo:30400/
-      PACHYDERM_AUTH_TOKEN: ${{ secrets.PachydermAuthToken }}
+      PACHYDERM_CLUSTER_URL: grpcs://hub-c0-fl3rezqasn.clusters.pachyderm.io:31400
+      PACHYDERM_TOKEN: ${{ secrets.PACHYDERM_TOKEN }}
       DOCKER_IMAGE_TAG: papposilenus/housing-prices
       PACHYDERM_PIPELINE_FILES: regression.json
     steps:
       - uses: actions/checkout@v2
       - name: Docker login
-        run: echo '${{ secrets.DOCKERHUB_PASS }}' | docker login --username '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
+        run: echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login --username '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
       - name: Build the tagged Docker image
         run: docker build --tag ${DOCKER_IMAGE_TAG}:${GITHUB_SHA} .
       - name: Push docker image
