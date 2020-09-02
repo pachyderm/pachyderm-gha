@@ -40,9 +40,9 @@ There are three items in [`push.yaml`](./.github/workflows/push.yaml) that need 
 
 1.  `PACHYDERM_CLUSTER_URL`: This is the url to your pachyderm cluster, the one configured via Ingress to `pachd`'s GRPC port.
   If you use Pachyderm Hub, it'll look something like `grpcs://hub-some-id.clusters.pachyderm.io:31400`.
-2. `DOCKER_IMAGE_TAG`: Replace this with the base repo/tag combination for the Docker registry to which your image will be pushed.
+2. `DOCKER_IMAGE_NAME`: Replace this with the base repo/tag combination for the Docker registry to which your image will be pushed.
   For this demo, it's set to `pachyderm/housing-prices`
-3. `PACHYDERM_PIPELINE_FILES`: A space-delimited list of pipeline specifications that depend on `DOCKER_IMAGE_TAG`.
+3. `PACHYDERM_PIPELINE_FILES`: A space-delimited list of pipeline specifications that depend on `DOCKER_IMAGE_NAME`.
   In this project, there's just one pipeline, `regression.json`.
 
 GitHub Repository Secrets are used to keep your access credentials secure while giving permissions to build and run a pipeline, preventing any private information from being exposed in your code. You can create a secret by going into the "Settings" for your repository and selecting "Secrets" from the sidebar. For more information, see [creating and using secrets in a GitHub Workflow](https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets). We will create three Secrets: `PACHYDERM_TOKEN`, `DOCKERHUB_TOKEN`, and `DOCKERHUB_USERNAME`.
@@ -79,7 +79,7 @@ You can also use this repository as a template for your own project. The [workfl
 
 1. Copy the [`.github`](./.github) and [`pachyderm-github-action`](./pachyderm-github-action) to your own project.
 
-2. Customize the environment variables for your project: `PACHYDERM_CLUSTER_URL`, `PACHYDERM_TOKEN`, `PACHYDERM_PIPELINE_FILES`, `DOCKER_IMAGE_TAG`, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. See [Getting Started](#getting-started) for more details on these.
+2. Customize the environment variables for your project: `PACHYDERM_CLUSTER_URL`, `PACHYDERM_TOKEN`, `PACHYDERM_PIPELINE_FILES`, `DOCKER_IMAGE_NAME`, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. See [Getting Started](#getting-started) for more details on these.
      
 ### Optional Configuration
 
