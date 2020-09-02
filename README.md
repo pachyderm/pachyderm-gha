@@ -56,7 +56,7 @@ Once created, your secrets should look like the image below:
   <img src="images/gh_secrets.png">
 </p>
 
-Once these changes are committed, the GitHub Actions will be executed with each commit (including the commit with the changes to `push.yaml`).
+Once these changes are committed, the GitHub Actions will be executed with each push to the master branch (including the commit with the changes to `push.yaml`).
 
 The status and results of Actions can be monitored under the "Actions" tab.
 
