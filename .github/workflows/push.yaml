@@ -8,16 +8,16 @@ jobs:
     env:
       PACHYDERM_CLUSTER_URL: grpcs://hub-c0-fl3rezqasn.clusters.pachyderm.io:31400
       PACHYDERM_TOKEN: ${{ secrets.PACHYDERM_TOKEN }}
-      DOCKER_IMAGE_TAG: pachyderm/housing-prices
+      DOCKER_IMAGE_NAME: pachyderm/housing-prices
       PACHYDERM_PIPELINE_FILES: regression.json
     steps:
       - uses: actions/checkout@v2
       - name: Docker login
         run: echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login --username '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
       - name: Build the tagged Docker image
-        run: docker build --tag ${DOCKER_IMAGE_TAG}:${GITHUB_SHA} .
+        run: docker build --tag ${DOCKER_IMAGE_NAME}:${GITHUB_SHA} .
       - name: Push docker image
-        run: docker push ${DOCKER_IMAGE_TAG}:${GITHUB_SHA}
+        run: docker push ${DOCKER_IMAGE_NAME}:${GITHUB_SHA}
       - name: pachyderm-update-pipelines
         uses: ./pachyderm-github-action
         id: pup
