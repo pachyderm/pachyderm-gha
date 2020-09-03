@@ -1,4 +1,4 @@
-# Github Actions Example
+# GitHub Actions Example
 
 GitHub Actions are a useful way to build and push your code. With the Pachyderm GitHub Action, you can automatically update a pipeline(s) when your code is committed. 
 
