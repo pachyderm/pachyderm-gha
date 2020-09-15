@@ -4,14 +4,13 @@ GitHub Actions are a useful way to build and push your code. With the Pachyderm 
 
 In this example, we'll take the [Housing Prices Example](https://github.com/pachyderm/pachyderm/tree/example/housing-prices/examples/ml/housing-prices) and add a GitHub Action for it. 
 
-
 - [Overview](#overview)
-- [Getting Started](#getting-started)
+- [Running this Example](#running-this-example)
 - [Customizing this Project](#customizing-this-project)
-  - [Use the GitHub Action in Your Project](#use-the-github-action-in-your-project)
-  - [Optional Configuration](#optional-configuration)
+  - [Workflow File](#workflow-file)
+  - [Action File](#action-file)
 - [Generating the Pachyderm Authentication Token](#generating-the-pachyderm-authentication-token)
-- [Using this Example in Production](#using-this-example-in-production)
+- [This Example in Production](#this-example-in-production)
 
 ## Overview
 
@@ -24,7 +23,7 @@ This project builds a Docker image used by multiple pipelines every time code is
 
   Note: The GitHub action updates or creates the pipeline, but does not create or delete data repositories. Any input repositories should already exist or the pipeline cannot be created.
 
-## Getting Started
+## Running this Example
 
 Forking this repository is the easiest way to get started. It will copy the repository into your own account and allow you to set your access credentials via secrets through GitHub. You can fork your own copy of this repo by clicking the button in the upper right corner of GitHub.
 
@@ -62,7 +61,18 @@ The status and results of Actions can be monitored under the "Actions" tab.
 
 ## Customizing this Project
 
-You can also use this repository as a template for your own project. The [workflow](./.github/workflows/push.yaml) controls the tasks to be executed for the GitHub action and [pachyderm-github-action](./pachyderm-github-action) tells the action how and what to communicate with Pachyderm. The 4 stages in the workflow are:
+You can also use this repository as a template for your own project. There are two main files that dictate the behavior of the GitHub Action. The workflow definition, `push.yaml`, and the action definition, `action.yaml`.
+
+### Workflow File
+
+The workflow in the [push.yaml](./.github/workflows/push.yaml) specifies the tasks to be executed when a GitHub event occurs.
+
+Every pipeline in Pachyderm uses a Docker image to operate on the data, so we use GitHub Actions to update our pipelines with a new Docker image when new code is committed.
+
+Note: We can also add or modify the workflow to run on any other [GitHub event](https://docs.github.com/en/actions/reference/events-that-trigger-workflows). 
+In this example, our Pachyderm Action runs on the push event.
+
+Our `push.yaml` file is defined to perform the following steps:
 
 1. Log into DockerHub using the GitHub secrets, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`.
 2. Build the Docker image used by the pipelines.
@@ -75,15 +85,22 @@ You can also use this repository as a template for your own project. The [workfl
   It was placed in a non-hidden directory so you can more easily see the code
   to modify it for your own purposes.
 
-### Use the GitHub Action in Your Project
+The last step, step 4, in `push.yaml` calls our action, `action.yaml`, which updates our Pachyderm pipeline.
+
+### Action File
+The `action.yaml` file in the [pachyderm-github-action](./pachyderm-github-action) directory defines how to GitHub will communicate with Pachyderm.
+We use GitHub Action runner that builds and runs the Dockerfile in that directory. 
+
+This temporary image will contain the access credentials to our Pachyderm cluster (maps in the secrets we set in GitHub), and executes the `entrypoint.sh` script.
+The script substitutes the pipeline image tag with the one produced in step 2 and runs `pachctl update pipeline` for each pipeline defined in the `push.yaml`.
+
+To customize this behavior, you can:
 
 1. Copy the [`.github`](./.github) and [`pachyderm-github-action`](./pachyderm-github-action) to your own project.
 
 2. Customize the environment variables for your project: `PACHYDERM_CLUSTER_URL`, `PACHYDERM_TOKEN`, `PACHYDERM_PIPELINE_FILES`, `DOCKER_IMAGE_NAME`, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. See [Getting Started](#getting-started) for more details on these.
      
-### Optional Configuration
-
-1. (Optional) You may move the directory `pachyderm-github-action` into the `.github` directory
+3. (Optional) You may move the directory `pachyderm-github-action` into the `.github` directory
    if you want to package all the actions together.
    You will need to modify the final step of the `Docker Images CI` workflow to reflect the new path, something like:
    ```bash
@@ -92,7 +109,7 @@ You can also use this repository as a template for your own project. The [workfl
      id: pup
    ```
   
-2. (Optional) You may want to create shared workflows or add additional actions.
+4. (Optional) You may want to create shared workflows or add additional actions.
    Please consult the [Documentation on GitHub Actions](https://docs.github.com/en/actions) for more information.
 
 ## Generating the Pachyderm Authentication Token
@@ -147,7 +164,7 @@ pachctl auth get-auth-token --ttl "624h" | \
     base64 -e | tr -d '\r\n'
 ```
 
-## Using this Example in Production
+## This Example in Production
 
 We recommend that this example be used in production with Pachyderm access controls activated.
 
