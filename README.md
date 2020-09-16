@@ -98,7 +98,7 @@ To customize this behavior, you can:
 
 1. Copy the [`.github`](./.github) and [`pachyderm-github-action`](./pachyderm-github-action) to your own project.
 
-2. Customize the environment variables for your project: `PACHYDERM_CLUSTER_URL`, `PACHYDERM_TOKEN`, `PACHYDERM_PIPELINE_FILES`, `DOCKER_IMAGE_NAME`, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. See [Getting Started](#getting-started) for more details on these.
+2. Customize the environment variables for your project: `PACHYDERM_CLUSTER_URL`, `PACHYDERM_TOKEN`, `PACHYDERM_PIPELINE_FILES`, `DOCKER_IMAGE_NAME`, `DOCKERHUB_TOKEN` and `DOCKERHUB_USERNAME`. See [Running this Example](#running-this-example) for more details on these.
      
 3. (Optional) You may move the directory `pachyderm-github-action` into the `.github` directory
    if you want to package all the actions together.
