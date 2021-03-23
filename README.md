@@ -2,7 +2,7 @@
 
 GitHub Actions are a useful way to build and push your code. With the Pachyderm GitHub Action, you can automatically update a pipeline(s) when your code is committed. 
 
-In this example, we'll take the [Housing Prices Example](https://github.com/pachyderm/pachyderm/tree/example/housing-prices/examples/ml/housing-prices) and add a GitHub Action for it. 
+In this example, we'll take the [Housing Prices Example](https://github.com/pachyderm/examples/tree/master/housing-prices) and add a GitHub Action for it. 
 
 - [Overview](#overview)
 - [Running this Example](#running-this-example)
