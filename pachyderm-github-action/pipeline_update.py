@@ -27,18 +27,14 @@ def create_pipeline_dict(pipeline_files):
     for pipes in pipeline_files:
         print(pipes)
         if os.path.isfile(pipes):
-            print("file!")
             f = open(pipes)
             pipe = json.load(f)
             pipelines.pop({pipe.pipeline.name: pipe})
         elif os.path.isdir(pipes):
-            print("dir!")
             for dirpath, dirs, files in os.walk(pipes):
                 for file in files:
-                    print(file)
                     f = open(os.path.join(dirpath, file))
                     pipe = json.load(f)
-                    print(pipe)
                     pipelines[pipe["pipeline"]["name"]] = pipe
     return pipelines
 
@@ -85,7 +81,8 @@ def update_pipeline(pipeline_order, pipelines):
     client = setup_client()
     for pipe in pipeline_order:
         req = python_pachyderm.parse_dict_pipeline_spec(pipelines[pipe])
-        client.create_pipeline_from_request(req,update=True)
+        req["update"] = True
+        client.create_pipeline_from_request(req)
 
 
 def main():
