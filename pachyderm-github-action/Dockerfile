@@ -1,6 +1,5 @@
-FROM pachyderm/pachctl:2.0.5
-RUN apt update -y && apt install -y jq
+FROM python:3.8.12
+RUN pip install python-pachyderm
+COPY *.py /
 
-COPY entrypoint.sh /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/pipeline_update.py"]
