@@ -89,7 +89,6 @@ def main():
     updated_pipeline = update_image(pipeline_dict, docker_image_name, git_sha)
     conns = create_connections(updated_pipeline)
     pipeline_order = sort_pipelines(conns)
-    print(pipeline_order)
     update_pipeline(pipeline_order, updated_pipeline)
 
 
