@@ -8,6 +8,7 @@ docker_image_name = os.environ["DOCKER_IMAGE_NAME"]
 pipeline_files = os.environ["PACHYDERM_PIPELINE_FILES"].split(" ")
 git_sha = os.environ["GITHUB_SHA"]
 
+
 def setup_client():
     pach_url = urlparse(os.environ["PACHYDERM_CLUSTER_URL"])
     pach_token = os.environ["PACHYDERM_TOKEN"]
@@ -15,11 +16,13 @@ def setup_client():
     port = pach_url.port
     if port is None:
         port = 80
-    if pach_url.scheme == "https":
+    if pach_url.scheme == "https" or pach_url.scheme == "grpcs":
         tls = True
     else:
         tls = False
-    return python_pachyderm.Client(host=host, port=port, tls=tls, auth_token=pach_token)
+    return python_pachyderm.Client(
+        host=host, port=port, tls=tls, auth_token=pach_token
+    )
 
 
 def create_pipeline_dict(pipeline_files):
